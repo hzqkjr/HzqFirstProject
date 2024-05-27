@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：最主要的作用就是绑定mapper.xml与对应那个Mapper接口的关系，要求接口名称为：全限定名 -->
+<mapper namespace="com.example.hzqfirstproject.mapper.UserMapper">
+
+    <select id="selectAll" resultType="com.example.hzqfirstproject.entity.User">
+        select *
+        from user
+    </select>
+
+    <select id="selectById" resultType="com.example.hzqfirstproject.entity.User">
+        select *
+        from user
+        where id = #{id}
+    </select>
+
+    <insert id="insertToUser" useGeneratedKeys="true" keyProperty="id">
+        insert into user(user_name, password, gender, birthday, dept_id)
+        values (#{userName}, #{password}, #{gender}, #{birthday}, #{deptId})
+    </insert>
+
+    <update id="update">
+        update user
+        set user_name=#{userName},
+            password=#{password},
+            gender=#{gender},
+            birthday=#{birthday},
+            dept_id=#{deptId}
+        where id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete
+        from user
+        where id = #{id}
+    </delete>
+
+    <select id="getUserInfo" resultType="com.example.hzqfirstproject.dto.UserInfo">
+        select *
+        from user a
+                 LEFT JOIN department b on a.dept_id = b.id;
+    </select>
+
+    <insert id="insertUsers" parameterType="arraylist">
+        INSERT INTO user (user_name,password,gender,birthday,dept_id)
+        VALUES
+        <foreach collection="userList" item="user" separator=",">
+            (#{user.userName},#{user.password},#{user.gender},#{user.birthday},#{user.deptId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteUsers" parameterType="arraylist">
+        delete from user where id in
+        <foreach item="ids" collection="idList" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <update id="updateBatch"  parameterType="java.util.List">
+        <foreach collection="userList" item="item" index="index" open="" close="" separator=";">
+            update user
+            <set>
+                user_name=#{item.userName},
+                password=#{item.password},
+                gender=#{item.gender},
+                birthday=#{item.birthday},
+                dept_id=#{item.deptId}
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+</mapper>

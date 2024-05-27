@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：最主要的作用就是绑定mapper.xml与对应那个Mapper接口的关系，要求接口名称为：全限定名 -->
+<mapper namespace="com.example.hzqfirstproject.mapper.DeptMapper">
+
+    <select id="selectAll" resultType="com.example.hzqfirstproject.entity.Department">
+        select * from department
+    </select>
+
+    <select id="selectById" resultType="com.example.hzqfirstproject.entity.Department">
+        select * from department where id=#{id}
+    </select>
+
+    <insert id="insertToUser" useGeneratedKeys="true" keyProperty="id">
+        insert into department(dept_name,description,address) values(#{deptName},#{description},#{address})
+    </insert>
+
+    <update id = "update">
+        update department set dept_name=#{deptName},description=#{description},address=#{address} where id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from department where id=#{id}
+    </delete>
+
+    <resultMap id="getDeptInfo" type="com.example.hzqfirstproject.dto.DeptInfo">
+        <id property="id" column="id"/>
+        <result property="address" column="address"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="description" column="description"/>
+        <collection property="userList" ofType="com.example.hzqfirstproject.entity.User">
+            <id property="id" column="bid"/>
+            <result property="birthday" column="birthday"/>
+            <result property="userName" column="user_name"/>
+            <result property="gender" column="gender"/>
+            <result property="deptId" column="dept_id"/>
+            <result property="password" column="password"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="DeptInfo" resultMap="getDeptInfo" parameterType="int">
+        select
+            a.id,
+            address,dept_name,description,
+            b.id as bid,birthday,user_name,gender,dept_id,password
+        from department a LEFT JOIN user b on b.dept_id = a.id where a.id = #{id}
+    </select>
+
+
+    <insert id="insertDept" parameterType="arraylist">
+        INSERT INTO department (dept_name,description,address)
+        VALUES
+        <foreach collection="deptList" item="dept" separator=",">
+            (#{dept.deptName},#{dept.description},#{dept.address})
+        </foreach>
+    </insert>
+
+    <delete id="deleteDept" parameterType="arraylist">
+        delete from department where id in
+        <foreach item="ids" collection="idList" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <update id="updateBatch"  parameterType="java.util.List">
+        <foreach collection="deptList" item="item" index="index" open="" close="" separator=";">
+            update department
+            <set>
+                dept_name=#{item.deptName},description=#{item.description},address=#{item.address}
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+</mapper>
